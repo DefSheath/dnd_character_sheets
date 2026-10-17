@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&amp;D 現代美學角色卡 - Beta0.9版</title>
+    <style>
+        :root {
+            --bg-color: #e6e6e6;
+            --paper-color: #fcfcfc;
+            --dark-color: #1a1a1a;
+            --gray-line: #d0d0d0;
+            --accent-red: #c0392b;
+            --accent-dark: #2c3e50;
+        }
+
+        body {	
+            background-color: var(--bg-color);
+            color: var(--dark-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .binder-container {
+            display: flex;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            max-width: 1250px;
+            width: 100%;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* 左側索引標籤列與按鈕區 */
+        .binder-sidebar {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-right: 15px;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .binder-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tab {
+            color: #fff;
+            padding: 14px 10px;
+            font-size: 16px;
+            writing-mode: vertical-rl;
+            letter-spacing: 3px;
+            border-radius: 6px 0 0 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            user-select: none;
+            opacity: 0.75;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab:nth-child(1) { background-color: #2980b9; } 
+        .tab:nth-child(2) { background-color: #27ae60; } 
+        .tab:nth-child(3) { background-color: #8e44ad; } 
+        .tab:nth-child(4) { background-color: #d35400; } 
+        .tab:nth-child(5) { background-color: #16a085; } 
+
+        .tab.active, .tab:hover {
+            opacity: 1;
+            font-weight: bold;
+            box-shadow: inset 4px 0 0 #fff;
+        }
+
+        .sidebar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+        }
+
+        .btn-action {
+            color: #fff;
+            border: none;
+            padding: 14px 8px;
+            font-size: 15px;
+            writing-mode: vertical-rl;
+            letter-spacing: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-action:nth-child(1) { background-color: #2c3e50; } 
+        .btn-action:nth-child(2) { background-color: #27ae60; } 
+        .btn-action:nth-child(3) { background-color: #d35400; } 
+        .btn-action:nth-child(4) { background-color: #c0392b; } 
+
+        .btn-action:hover {
+            filter: brightness(1.2);
+        }
+
+        /* 頁面主體 */
+        .sheet-page {
+            background-color: var(--paper-color);
+            width: 100%;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+            min-height: 650px;
+            overflow-x: hidden;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 環裝孔裝飾 */
+        .binder-rings {
+            position: absolute;
+            left: -15px;
+            top: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 120px;
+        }
+
+        .ring {
+            width: 25px;
+            height: 35px;
+            background: linear-gradient(90deg, #999, #fff, #777);
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--dark-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .char-title-box {
+            flex: 2;
+            min-width: 200px;
+            margin-right: 10px;
+        }
+
+        .char-title-box input {
+            font-size: 32px;
+            font-weight: bold;
+            border: none;
+            border-bottom: 1px dashed var(--dark-color);
+            background: transparent;
+            width: 100%;
+            outline: none;
+        }
+
+        .char-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            font-size: 16px;
+            flex: 3;
+            min-width: 280px;
+        }
+
+        .info-item label {
+            display: block;
+            color: #555;
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .info-item input, .info-item select {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid var(--gray-line);
+            background: transparent;
+            font-size: 17px;
+            outline: none;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .info-item select {
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        h3 {
+            font-size: 18px;
+            border-bottom: 1px solid var(--dark-color);
+            padding-bottom: 6px;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .attr-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f4f4f4;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid var(--dark-color);
+            gap: 8px;
+        }
+
+        .attr-box label {
+            font-size: 16px;
+            font-weight: bold;
+            flex: 1.2;
+        }
+
+        .attr-box input.attr-val {
+            width: 48px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border: 1px solid var(--gray-line);
+            background: #fff;
+            padding: 4px;
+            border-radius: 3px;
+        }
+
+        .attr-calc-box {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .calc-badge {
+            width: 42px;
+            text-align: center;
+            font-size: 17px;
+            font-weight: bold;
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            padding: 4px 0;
+            border-radius: 3px;
+            color: #334155;
+        }
+
+        .save-badge-container {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid var(--gray-line);
+            border-radius: 3px;
+            padding: 2px 6px;
+            gap: 4px;
+        }
+
+        .save-badge-container input[type="checkbox"] {
+            cursor: pointer;
+            margin: 0;
+            transform: scale(1.3);
+        }
+
+        .save-result {
+            width: 38px;
+            text-align: center;
+            font-size: 17px;
+            font-weight: bold;
+            border: none;
+            background: transparent;
+            outline: none;
+            color: #1e293b;
+        }
+
+        .combat-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card {
+            border: 1px solid var(--dark-color);
+            text-align: center;
+            padding: 10px 4px;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .stat-card label {
+            display: block;
+            font-size: 13px;
+            color: #444;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-card input {
+            width: 100%;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            outline: none;
+            background: transparent;
+        }
+
+        /* 血量與死亡豁免容器 */
+        .hp-container {
+            border: 1px solid var(--dark-color);
+            padding: 14px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            margin-bottom: 18px;
+            display: grid;
+            grid-template-columns: 1fr 180px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .hp-inputs-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .hp-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hp-item label {
+            display: block;
+            font-size: 13px;
+            color: #444;
+            font-weight: bold;
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+
+        .hp-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hp-item input {
+            width: 100%;
+            border: 1px solid var(--gray-line);
+            background: #fff;
+            padding: 6px 2px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        .hp-adjust-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .hp-adjust-row {
+            display: flex;
+            gap: 2px;
+        }
+
+        .hp-btn {
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            font-size: 12px;
+            padding: 2px 4px;
+            cursor: pointer;
+            border-radius: 2px;
+            color: #334155;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+        }
+
+        .hp-btn:hover {
+            background: #cbd5e1;
+        }
+
+        .death-saves-inline {
+            font-size: 13px;
+            border-left: 1px solid var(--gray-line);
+            padding-left: 12px;
+        }
+
+        .death-saves-inline label {
+            display: block;
+            font-size: 13px;
+            color: #444;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .death-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .death-row input[type="checkbox"] {
+            transform: scale(1.3);
+        }
+
+        .resources-container {
+            margin-bottom: 18px;
+        }
+
+        .resources-container label.main-label {
+            display: block;
+            font-size: 13px;
+            color: #444;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .resource-card {
+            border: 1px solid var(--dark-color);
+            background: #fff;
+            border-radius: 4px;
+            padding: 8px 4px;
+            text-align: center;
+        }
+
+        .resource-card input.res-name {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid var(--gray-line);
+            background: transparent;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            margin-bottom: 4px;
+            padding-bottom: 2px;
+        }
+
+        .resource-card input.res-val {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+        }
+
+        .text-area-box {
+            margin-bottom: 18px;
+        }
+
+        .text-area-box label {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .text-area-box textarea {
+            width: 100%;
+            border: 1px solid var(--gray-line);
+            background: #fff;
+            padding: 10px;
+            box-sizing: border-box;
+            font-family: inherit;
+            border-radius: 4px;
+            outline: none;
+            height: 90px;
+            resize: vertical;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .abilities-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .skill-group-card {
+            background: #fdfdfd;
+            border: 1px solid var(--dark-color);
+            border-radius: 6px;
+            padding: 12px 14px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        .skill-group-header {
+            font-size: 16px;
+            font-weight: bold;
+            border-bottom: 1px dashed var(--dark-color);
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+            color: var(--accent-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skill-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .skill-row:last-child {
+            border-bottom: none;
+        }
+
+        .skill-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-total-val {
+            font-weight: bold;
+            font-size: 15px;
+            width: 42px;
+            text-align: center;
+            border: 1px solid var(--gray-line);
+            border-radius: 3px;
+            padding: 2px 0;
+            background: #fff;
+            outline: none;
+            color: var(--dark-color);
+        }
+
+        .skill-total-val:focus {
+            border-color: var(--accent-dark);
+            box-shadow: 0 0 3px rgba(44, 62, 80, 0.3);
+        }
+
+        .skill-select {
+            font-size: 14px;
+            padding: 3px 6px;
+            border: 1px solid var(--gray-line);
+            border-radius: 3px;
+            background: #fff;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .portrait-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 100%;
+        }
+
+        .portrait-box {
+            border: 2px dashed var(--dark-color);
+            background: #f4f4f4;
+            border-radius: 6px;
+            flex: 1;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .portrait-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .portrait-placeholder {
+            color: #777;
+            font-size: 16px;
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+        }
+
+        .portrait-clear-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .portrait-upload-btn {
+            background-color: var(--accent-dark);
+            color: #fff;
+            border: none;
+            padding: 12px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        th, td {
+            border: 1px solid var(--gray-line);
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        td input, td select {
+            width: 100%;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .btn-add {
+            background-color: var(--accent-dark);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-del {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            border-top: 1px solid var(--gray-line);
+            padding-top: 12px;
+            font-size: 13px;
+            color: #777;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .copyright-notice, .ad-banner {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #777;
+            text-align: right;
+        }
+        .copyright-notice a, .ad-banner a { color: #2980b9; text-decoration: none; }
+
+        #spell-table th, #spell-table td { padding: 8px; vertical-align: middle; }
+        #spell-table th.check-col, #spell-table td.check-col { text-align: center; padding: 8px 4px; }
+        #spell-table .spell-desc-row td { padding: 0; border: 0; }
+        #spell-table .spell-desc-textarea { width: 100%; height: 60px; resize: vertical; box-sizing: border-box; padding: 8px; border: 1px solid #e0e0e0; border-top: none; background: #fafafa; font-family: inherit; font-size: 15px; margin-bottom: 8px; }
+        #spell-table input[type="checkbox"] { transform: scale(1.3); }
+
+        /* 桌面端優化表格 */
+        @media (min-width: 901px) {
+            #inventory-table {
+                table-layout: fixed;
+                width: 100%;
+            }
+            #inventory-table th:nth-child(3),
+            #inventory-table th:nth-child(4) {
+                width: 75px; 
+            }
+            #inventory-table th:nth-child(5) {
+                width: 22%;
+            }
+            #inventory-table th:nth-child(7) {
+                width: 65px;
+            }
+        }
+
+        /* 📱 手機與平板響應式斷點 (<= 900px) */
+        @media (max-width: 900px) {
+            body { padding: 4px; }
+            .binder-container { 
+                flex-direction: column; 
+                padding: 10px; 
+                border-radius: 4px; 
+                box-shadow: none; 
+            }
+            .binder-rings { display: none; }
+            .binder-sidebar { 
+                flex-direction: row; 
+                justify-content: space-between; 
+                padding-right: 0; 
+                padding-bottom: 12px; 
+                overflow-x: auto; 
+                gap: 8px;
+            }
+            .binder-tabs { 
+                flex-direction: row; 
+                gap: 5px; 
+            }
+            .tab { 
+                writing-mode: horizontal-tb; 
+                padding: 8px 12px; 
+                font-size: 13px; 
+                letter-spacing: 0.5px; 
+                border-radius: 4px 4px 0 0; 
+            }
+            .tab.active, .tab:hover { 
+                box-shadow: inset 0 3px 0 #fff; 
+            }
+            .sidebar-actions { 
+                flex-direction: row; 
+                gap: 5px;
+            }
+            .btn-action { 
+                writing-mode: horizontal-tb; 
+                padding: 8px 10px; 
+                font-size: 13px; 
+                letter-spacing: 0.5px; 
+            }
+            .sheet-page { 
+                padding: 12px; 
+                min-height: auto;
+            }
+            .header-section { 
+                flex-direction: column; 
+                gap: 10px;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+            }
+            .char-title-box {
+                margin-right: 0;
+            }
+            .char-info-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .main-grid, .abilities-layout, .profile-layout { 
+                grid-template-columns: 1fr; 
+                gap: 15px;
+            }
+            .hp-container { 
+                grid-template-columns: 1fr; 
+                gap: 15px;
+            }
+            .death-saves-inline { 
+                border-left: none; 
+                border-top: 1px solid var(--gray-line); 
+                padding-left: 0; 
+                padding-top: 10px; 
+                margin-top: 5px; 
+            }
+            .resources-grid { 
+                grid-template-columns: repeat(3, 1fr); 
+            }
+            .combat-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            /* 表格水平捲動容器保護 */
+            #spell-table, #inventory-table, #spell-slots-table { 
+                min-width: 650px; 
+            }
+            div[style*="overflow-x: auto;"] {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        @media print {
+            body { background-color: #fff; padding: 0; }
+            .binder-container { background-color: transparent; padding: 0; box-shadow: none; max-width: 100%; }
+            .binder-rings, .binder-sidebar { display: none !important; }
+            .sheet-page { box-shadow: none; padding: 0; min-height: auto; }
+            .tab-content { display: block !important; page-break-after: always; margin-bottom: 40px; }
+            .tab-content:last-child { page-break-after: avoid; }
+            .btn-add, .btn-del, .portrait-upload-btn, .portrait-clear-btn { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="binder-container">
+    <div class="binder-rings">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+
+    <div class="binder-sidebar">
+        <div class="binder-tabs">
+            <div class="tab active" onclick="switchTab(0)"><span>角色</span><span>CHARACTER</span></div>
+            <div class="tab" onclick="switchTab(1)"><span>能力</span><span>ABILITIES</span></div>
+            <div class="tab" onclick="switchTab(2)"><span>法術</span><span>SPELLS</span></div>
+            <div class="tab" onclick="switchTab(3)"><span>裝備</span><span>INVENTORY</span></div>
+            <div class="tab" onclick="switchTab(4)"><span>檔案</span><span>PROFILE</span></div>
+        </div>
+        <div class="sidebar-actions">
+            <button type="button" class="btn-action" onclick="exportJSON()">下載JSON</button>
+            <button type="button" class="btn-action" onclick="document.getElementById('import-json-file').click()">讀取JSON</button>
+            <input type="file" id="import-json-file" accept=".json" style="display: none;" onchange="importJSON(event)">
+            <button type="button" class="btn-action" onclick="resetCharacterSheet()">清除重設</button>
+            <button type="button" class="btn-action" onclick="exportPDF()">輸出PDF</button>
+        </div>
+    </div>
+
+    <div class="sheet-page">
+
+        <!-- 1. CHARACTER 頁面 -->
+        <div class="tab-content active" id="page-0">
+            <div class="header-section">
+                <div class="char-title-box">
+                    <label style="font-size: 13px; color: #555; font-weight: bold;">角色名稱 / CHARACTER NAME</label>
+                    <input type="text" id="char-name" value="">
+                </div>
+                <div class="char-info-grid">
+                    <div class="info-item"><label>職業與等級</label><input type="text" id="char-class" value=""></div>
+                    <div class="info-item"><label>背景</label><input type="text" id="char-background" value=""></div>
+                    <div class="info-item"><label>玩家姓名</label><input type="text" id="char-player" value=""></div>
+                    <div class="info-item"><label>種族</label><input type="text" id="char-race" value=""></div>
+                    <div class="info-item"><label>陣營</label><input type="text" id="char-alignment" value=""></div>
+                    <div class="info-item"><label>經驗值</label><input type="text" id="char-exp" value=""></div>
+                </div>
+            </div>
+
+            <div class="main-grid">
+                <div class="left-column">
+                    <div class="attributes-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--dark-color); padding-bottom: 6px; margin-bottom: 18px;">
+                            <h3 style="margin: 0; border: none; padding: 0;">ATTRIBUTES 屬性</h3>
+                            <span style="font-size: 13px; color: #555; font-weight: bold;">[加值] [豁免]</span>
+                        </div>
+
+                        <div class="attr-box" data-attr="str">
+                            <label>力量 STR</label>
+                            <input type="text" class="attr-val" value="10" oninput="updateAttributes()">
+                            <div class="attr-calc-box">
+                                <div class="calc-badge mod-val">+0</div>
+                                <div class="save-badge-container">
+                                    <input type="checkbox" class="save-check" onchange="updateAttributes()">
+                                    <input type="text" class="save-result" value="+0" readonly="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="attr-box" data-attr="dex">
+                            <label>敏捷 DEX</label>
+                            <input type="text" class="attr-val" value="10" oninput="updateAttributes()">
+                            <div class="attr-calc-box">
+                                <div class="calc-badge mod-val">+0</div>
+                                <div class="save-badge-container">
+                                    <input type="checkbox" class="save-check" onchange="updateAttributes()">
+                                    <input type="text" class="save-result" value="+0" readonly="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="attr-box" data-attr="con">
+                            <label>體魄 CON</label>
+                            <input type="text" class="attr-val" value="10" oninput="updateAttributes()">
+                            <div class="attr-calc-box">
+                                <div class="calc-badge mod-val">+0</div>
+                                <div class="save-badge-container">
+                                    <input type="checkbox" class="save-check" onchange="updateAttributes()">
+                                    <input type="text" class="save-result" value="+0" readonly="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="attr-box" data-attr="int">
+                            <label>智力 INT</label>
+                            <input type="text" class="attr-val" value="10" oninput="updateAttributes()">
+                            <div class="attr-calc-box">
+                                <div class="calc-badge mod-val">+0</div>
+                                <div class="save-badge-container">
+                                    <input type="checkbox" class="save-check" onchange="updateAttributes()">
+                                    <input type="text" class="save-result" value="+0" readonly="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="attr-box" data-attr="wis">
+                            <label>感知 WIS</label>
+                            <input type="text" class="attr-val" value="10" oninput="updateAttributes()">
+                            <div class="attr-calc-box">
+                                <div class="calc-badge mod-val">+0</div>
+                                <div class="save-badge-container">
+                                    <input type="checkbox" class="save-check" onchange="updateAttributes()">
+                                    <input type="text" class="save-result" value="+0" readonly="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="attr-box" data-attr="cha">
+                            <label>魅力 CHA</label>
+                            <input type="text" class="attr-val" value="10" oninput="updateAttributes()">
+                            <div class="attr-calc-box">
+                                <div class="calc-badge mod-val">+0</div>
+                                <div class="save-badge-container">
+                                    <input type="checkbox" class="save-check" onchange="updateAttributes()">
+                                    <input type="text" class="save-result" value="+0" readonly="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-area-box" style="margin-bottom: 0;">
+                        <label>戰鬥筆記 / COMBAT NOTES</label>
+                        <textarea id="combat-notes" style="height: 107px;"></textarea>
+                    </div>
+                </div>
+
+                <div class="combat-section">
+                    <h3>COMBAT &amp; STATS 戰鬥數值</h3>
+                    
+                    <div class="combat-stats">
+                        <div class="stat-card"><label>防禦值 AC</label><input type="text" id="stat-ac" value="10"></div>
+                        <div class="stat-card"><label>先攻 INITIATIVE</label><input type="text" id="stat-init" value="+0"></div>
+                        <div class="stat-card"><label>速度 SPEED</label><input type="text" id="stat-speed" value="30ft"></div>
+                        <div class="stat-card"><label>熟練加值 PROF</label><input type="text" id="prof-bonus" value="+2" oninput="updateAttributes()"></div>
+                    </div>
+
+                    <div class="hp-container">
+                        <div class="hp-inputs-group">
+                            <div class="hp-item">
+                                <label>上限 HP</label>
+                                <div class="hp-input-wrapper">
+                                    <input type="text" id="hp-max" value="0">
+                                    <div class="hp-adjust-col">
+                                        <div class="hp-adjust-row">
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-max', 10)">+10</button>
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-max', 1)">+1</button>
+                                        </div>
+                                        <div class="hp-adjust-row">
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-max', -10)">-10</button>
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-max', -1)">-1</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hp-item">
+                                <label>目前 HP</label>
+                                <div class="hp-input-wrapper">
+                                    <input type="text" id="hp-current" value="0">
+                                    <div class="hp-adjust-col">
+                                        <div class="hp-adjust-row">
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-current', 10)">+10</button>
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-current', 1)">+1</button>
+                                        </div>
+                                        <div class="hp-adjust-row">
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-current', -10)">-10</button>
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-current', -1)">-1</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hp-item">
+                                <label>臨時 HP</label>
+                                <div class="hp-input-wrapper">
+                                    <input type="text" id="hp-temp" value="0">
+                                    <div class="hp-adjust-col">
+                                        <div class="hp-adjust-row">
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-temp', 10)">+10</button>
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-temp', 1)">+1</button>
+                                        </div>
+                                        <div class="hp-adjust-row">
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-temp', -10)">-10</button>
+                                            <button type="button" class="hp-btn" onclick="adjustHp('hp-temp', -1)">-1</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="death-saves-inline">
+                            <label>死亡豁免 DEATH SAVES</label>
+                            <div class="death-row"><span>成功</span><span><input type="checkbox" class="ds-success"> <input type="checkbox" class="ds-success"> <input type="checkbox" class="ds-success"></span></div>
+                            <div class="death-row"><span>失敗</span><span><input type="checkbox" class="ds-fail"> <input type="checkbox" class="ds-fail"> <input type="checkbox" class="ds-fail"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="resources-container">
+                        <label class="main-label">特殊資源 (氣/術法點/卓越骰等)</label>
+                        <div class="resources-grid" id="resources-grid">
+                            <div class="resource-card"><input type="text" class="res-name" placeholder="名稱" value=""><input type="text" class="res-val" placeholder="0/0" value=""></div>
+                            <div class="resource-card"><input type="text" class="res-name" placeholder="名稱" value=""><input type="text" class="res-val" placeholder="0/0" value=""></div>
+                            <div class="resource-card"><input type="text" class="res-name" placeholder="名稱" value=""><input type="text" class="res-val" placeholder="0/0" value=""></div>
+                            <div class="resource-card"><input type="text" class="res-name" placeholder="名稱" value=""><input type="text" class="res-val" placeholder="0/0" value=""></div>
+                            <div class="resource-card"><input type="text" class="res-name" placeholder="名稱" value=""><input type="text" class="res-val" placeholder="0/0" value=""></div>
+                        </div>
+                    </div>
+
+                    <div class="text-area-box">
+                        <label>攻擊與法術 / ATTACKS &amp; SPELLS</label>
+                        <textarea id="attacks-notes" style="height: 138px;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ABILITIES 頁面 -->
+        <div class="tab-content" id="page-1">
+            <h3>ABILITIES &amp; SKILLS 技能加值與熟練總覽</h3>
+            <div class="abilities-layout">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="skill-group-card" data-skill-attr="str">
+                        <div class="skill-group-header"><span>力量 STR</span><span>加值: <strong class="group-mod-disp">+0</strong></span></div>
+                        <div class="skill-row" data-skill="athletics"><span>運動 Athletics</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                    </div>
+                    <div class="skill-group-card" data-skill-attr="dex">
+                        <div class="skill-group-header"><span>敏捷 DEX</span><span>加值: <strong class="group-mod-disp">+0</strong></span></div>
+                        <div class="skill-row" data-skill="acrobatics"><span>特技 Acrobatics</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="sleight_of_hand"><span>巧手 Sleight of Hand</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="stealth"><span>隱匿 Stealth</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                    </div>
+                    <div class="skill-group-card" data-skill-attr="con">
+                        <div class="skill-group-header"><span>體魄 CON</span><span>加值: <strong class="group-mod-disp">+0</strong></span></div>
+                        <div style="font-size: 13px; color: #666; text-align: center; padding: 4px 0;">(無特定對應技能)</div>
+                    </div>
+                    <div class="skill-group-card" data-skill-attr="int">
+                        <div class="skill-group-header"><span>智力 INT</span><span>加值: <strong class="group-mod-disp">+0</strong></span></div>
+                        <div class="skill-row" data-skill="arcana"><span>奧秘 Arcana</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="history"><span>歷史 History</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="investigation"><span>調查 Investigation</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="nature"><span>自然 Nature</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="religion"><span>宗教 Religion</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                    </div>
+                    <div class="skill-group-card" data-skill-attr="wis">
+                        <div class="skill-group-header"><span>感知 WIS</span><span>加值: <strong class="group-mod-disp">+0</strong></span></div>
+                        <div class="skill-row" data-skill="animal_handling"><span>馴獸 Animal Handling</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="insight"><span>洞悉 Insight</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="medicine"><span>醫療 Medicine</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="perception"><span>察覺 Perception</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="survival"><span>生存 Survival</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                    </div>
+                    <div class="skill-group-card" data-skill-attr="cha">
+                        <div class="skill-group-header"><span>魅力 CHA</span><span>加值: <strong class="group-mod-disp">+0</strong></span></div>
+                        <div class="skill-row" data-skill="deception"><span>欺瞞 Deception</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="intimidation"><span>威嚇 Intimidation</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="performance"><span>表演 Performance</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                        <div class="skill-row" data-skill="persuasion"><span>說服 Persuasion</span><div class="skill-info"><select class="skill-select" onchange="resetSkillCustom(this); updateAttributes()"><option value="0" selected="selected">無熟練</option><option value="0.5">半熟練</option><option value="1">熟練</option><option value="2">專家</option></select><input type="text" class="skill-total-val" value="+0" oninput="this.dataset.custom = 'true'"></div></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="text-area-box"><label>熟練裝備與工具 / PROFICIENCIES</label><textarea id="proficiencies-notes" style="height: 110px;"></textarea></div>
+                    <div class="text-area-box"><label>種族與核心能力 / RACIAL &amp; CORE FEATURES</label><textarea id="racial-notes" style="height: 292px;"></textarea></div>
+                    <div class="text-area-box"><label>職業戰鬥風格與特技 / CLASS FEATURES</label><textarea id="class-notes" style="height: 681px;"></textarea></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. SPELLS 頁面 -->
+        <div class="tab-content" id="page-2">
+            <h3>SPELLS &amp; CANTRIPS 法術與戲法</h3>
+            <div class="char-info-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+                <div class="info-item"><label>施法能力</label><select id="spell-ability" onchange="updateAttributes()"><option value="str">力量</option><option value="dex">敏捷</option><option value="con">體魄</option><option value="int">智力</option><option value="wis">感知</option><option value="cha" selected="selected">魅力</option></select></div>
+                <div class="info-item"><label>法術DC</label><input type="text" id="spell-dc" value="10" oninput="this.dataset.custom = 'true'"></div>
+                <div class="info-item"><label>法術攻擊</label><input type="text" id="spell-atk" value="+2" oninput="this.dataset.custom = 'true'"></div>
+            </div>
+
+            <div style="margin-bottom: 20px; overflow-x: auto;">
+                <label style="display: block; font-size: 16px; font-weight: bold; margin-bottom: 8px;">法術位管理</label>
+                <table id="spell-slots-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">1環</th><th style="text-align: center;">2環</th><th style="text-align: center;">3環</th><th style="text-align: center;">4環</th><th style="text-align: center;">5環</th><th style="text-align: center;">6環</th><th style="text-align: center;">7環</th><th style="text-align: center;">8環</th><th style="text-align: center;">9環</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                            <td style="text-align: center;"><input type="text" value="0/0" style="text-align: center;"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table id="spell-table">
+                    <thead>
+                        <tr>
+                            <th>環階</th>
+                            <th>法術名稱</th>
+                            <th>動作/施放時間</th>
+                            <th>距離</th>
+                            <th>時間</th>
+                            <th>材料</th>
+                            <th class="check-col" title="語言 (Verbal)">V</th>
+                            <th class="check-col" title="姿勢 (Somatic)">S</th>
+                            <th class="check-col" title="專注 (Concentration)">C</th>
+                            <th class="check-col" title="儀式 (Ritual)">R</th>
+                            <th>備註</th>
+                            <th style="text-align: center;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spell-tbody">
+                        <!-- 初始空白 -->
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-add" onclick="addSpellRow()">+ 新增法術</button>
+        </div>
+
+
+        <!-- 4. INVENTORY 頁面 -->
+        <div class="tab-content" id="page-3">
+            <h3>INVENTORY &amp; EQUIPMENT 裝備與寶物</h3>
+            <div style="overflow-x: auto;">
+                <table id="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>物品名稱</th><th>位置</th><th>數量</th><th>重量</th><th>功效</th><th>備註</th><th style="text-align: center;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-tbody">
+                        <!-- 初始空白 -->
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-add" onclick="addInventoryRow()">+ 新增物品</button>
+            <div class="text-area-box" style="margin-top: 20px;"><label>金錢記錄</label><textarea style="height: 60px;">金幣 (GP): </textarea></div>
+        </div>
+
+        <!-- 5. PROFILE 頁面 -->
+        <div class="tab-content" id="page-4">
+            <h3>PROFILE &amp; BACKSTORY 角色檔案與立繪</h3>
+            <div class="profile-layout">
+                <div class="portrait-section">
+                    <label style="font-size: 16px; font-weight: bold;">角色立繪 / PORTRAIT</label>
+                    <div class="portrait-box" id="portrait-box">
+                        <button type="button" class="portrait-clear-btn" id="portrait-clear" onclick="clearPortrait()">×</button>
+                        <div class="portrait-placeholder" id="portrait-placeholder">暫無角色立繪</div>
+                        <img id="portrait-img" src="" alt="角色立繪">
+                    </div>
+                    <button type="button" class="portrait-upload-btn" onclick="document.getElementById('portrait-input').click()">上傳立繪圖片</button>
+                    <input type="file" id="portrait-input" accept="image/*" style="display: none;" onchange="handlePortraitUpload(event)">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="text-area-box"><label>外貌特徵 / APPEARANCE</label><textarea id="appearance-notes" style="height: 100px;"></textarea></div>
+                    <div class="text-area-box"><label>性格特質 / PERSONALITY TRAITS</label><textarea id="personality-notes" style="height: 100px;"></textarea></div>
+                    <div class="text-area-box"><label>理想與執念 / IDEALS &amp; BONDS</label><textarea id="ideals-notes" style="height: 100px;"></textarea></div>
+                    <div class="text-area-box"><label>缺點與弱點 / FLAWS</label><textarea id="flaws-notes" style="height: 100px;"></textarea></div>
+                    <div class="text-area-box"><label>背景故事 / BACKSTORY</label><textarea id="backstory-notes" style="height: 150px;"></textarea></div>
+                </div>
+            </div>
+        </div>
+   
+        <div class="footer-note">D&amp;D 現代美學角色卡 - Beta0.9版</div>
+        <div class="copyright-notice">© 2026 <a href="https://www.instagram.com/boardgametraveller/" target="_blank">桌遊旅人</a>. 禁止商業營利。</div>
+        <div class="ad-banner">N-R魔法學校集會所 (<a href="https://sites.google.com/view/bgt-dnd-nr/homepage" target="_blank">網址</a> / <a href="https://www.instagram.com/nr.dnd.school/" target="_blank">IG專頁</a>)</div>
+    </div>
+</div>
+
+<script>
+    // 切換頁籤
+    function switchTab(index) {
+        const tabs = document.querySelectorAll('.tab');
+        const contents = document.querySelectorAll('.tab-content');
+        tabs.forEach((tab, i) => {
+            if(i === index) {
+                tab.classList.add('active');
+                contents[i].classList.add('active');
+            } else {
+                tab.classList.remove('active');
+                contents[i].classList.remove('active');
+            }
+        });
+    }
+
+    // HP 調整按鈕
+    function adjustHp(inputId, delta) {
+        const el = document.getElementById(inputId);
+        if(!el) return;
+        let val = parseInt(el.value) || 0;
+        val += delta;
+        if(inputId !== 'hp-temp' && val < 0) val = 0;
+        el.value = val;
+    }
+
+    // 計算屬性加值與技能加值
+    function updateAttributes() {
+        const profStr = document.getElementById('prof-bonus').value.replace('+', '');
+        const prof = parseInt(profStr) || 0;
+
+        const attrs = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+        const mods = {};
+
+        attrs.forEach(attr => {
+            const box = document.querySelector(`.attr-box[data-attr="${attr}"]`);
+            if(!box) return;
+            const valInput = box.querySelector('.attr-val');
+            const modValDiv = box.querySelector('.mod-val');
+            const saveCheck = box.querySelector('.save-check');
+            const saveResInput = box.querySelector('.save-result');
+
+            let score = parseInt(valInput.value) || 10;
+            let mod = Math.floor((score - 10) / 2);
+            mods[attr] = mod;
+
+            modValDiv.textContent = (mod >= 0 ? '+' : '') + mod;
+
+            let saveVal = mod + (saveCheck.checked ? prof : 0);
+            saveResInput.value = (saveVal >= 0 ? '+' : '') + saveVal;
+        });
+
+        // 更新技能卡片頂部數值與各技能計算
+        document.querySelectorAll('.skill-group-card').forEach(card => {
+            const attrKey = card.dataset.skillAttr;
+            const attrMod = mods[attrKey] || 0;
+            const disp = card.querySelector('.group-mod-disp');
+            if(disp) disp.textContent = (attrMod >= 0 ? '+' : '') + attrMod;
+
+            card.querySelectorAll('.skill-row').forEach(row => {
+                const select = row.querySelector('.skill-select');
+                const totalInput = row.querySelector('.skill-total-val');
+                if(!totalInput.dataset.custom || totalInput.dataset.custom !== 'true') {
+                    let mult = parseFloat(select.value) || 0;
+                    let skillVal = attrMod + Math.floor(prof * mult);
+                    totalInput.value = (skillVal >= 0 ? '+' : '') + skillVal;
+                }
+            });
+        });
+
+        // 自動更新法術 DC 與攻擊
+        const spellAbility = document.getElementById('spell-ability').value;
+        const castingMod = mods[spellAbility] || 0;
+        const spellDcInput = document.getElementById('spell-dc');
+        const spellAtkInput = document.getElementById('spell-atk');
+
+        if(spellDcInput && spellDcInput.dataset.custom !== 'true') {
+            spellDcInput.value = 8 + prof + castingMod;
+        }
+        if(spellAtkInput && spellAtkInput.dataset.custom !== 'true') {
+            let atkVal = prof + castingMod;
+            spellAtkInput.value = (atkVal >= 0 ? '+' : '') + atkVal;
+        }
+    }
+
+    function resetSkillCustom(selectEl) {
+        const totalInput = selectEl.parentElement.querySelector('.skill-total-val');
+        if(totalInput) totalInput.dataset.custom = 'false';
+    }
+
+    // 動態新增法術列
+    function addSpellRow(data = {}) {
+        const tbody = document.getElementById('spell-tbody');
+        const dataRow = document.createElement('tr');
+        dataRow.className = 'spell-data-row';
+
+        const spellLevel = data.level || '戲法';
+        const spellName = data.name || '';
+        const action = data.action || '';
+        const range = data.range || '';
+        const duration = data.duration || '';
+        const material = data.material || '';
+        const v = data.v ? 'checked' : '';
+        const s = data.s ? 'checked' : '';
+        const c = data.c ? 'checked' : '';
+        const r = data.r ? 'checked' : '';
+        const notes = data.notes || '';
+        const desc = data.desc || '';
+
+        dataRow.innerHTML = `
+            <td>
+                <select class="spell-level-select">
+                    <option value="戲法" ${spellLevel === '戲法' ? 'selected' : ''}>戲法</option>
+                    <option value="1 環" ${spellLevel === '1 環' ? 'selected' : ''}>1 環</option>
+                    <option value="2 環" ${spellLevel === '2 環' ? 'selected' : ''}>2 環</option>
+                    <option value="3 環" ${spellLevel === '3 環' ? 'selected' : ''}>3 環</option>
+                    <option value="4 環" ${spellLevel === '4 環' ? 'selected' : ''}>4 環</option>
+                    <option value="5 環" ${spellLevel === '5 環' ? 'selected' : ''}>5 環</option>
+                    <option value="6 環" ${spellLevel === '6 環' ? 'selected' : ''}>6 環</option>
+                    <option value="7 環" ${spellLevel === '7 環' ? 'selected' : ''}>7 環</option>
+                    <option value="8 環" ${spellLevel === '8 環' ? 'selected' : ''}>8 環</option>
+                    <option value="9 環" ${spellLevel === '9 環' ? 'selected' : ''}>9 環</option>
+                </select>
+            </td>
+            <td><input type="text" class="spell-name" placeholder="法術名稱" value="${spellName}"></td>
+            <td><input type="text" class="spell-action" placeholder="動作" value="${action}"></td>
+            <td><input type="text" class="spell-range" placeholder="距離" value="${range}"></td>
+            <td><input type="text" class="spell-duration" placeholder="持續時間" value="${duration}"></td>
+            <td><input type="text" class="spell-material" placeholder="材料" value="${material}"></td>
+            <td class="check-col"><input type="checkbox" class="spell-v" ${v}></td>
+            <td class="check-col"><input type="checkbox" class="spell-s" ${s}></td>
+            <td class="check-col"><input type="checkbox" class="spell-c" ${c}></td>
+            <td class="check-col"><input type="checkbox" class="spell-r" ${r}></td>
+            <td><input type="text" class="spell-notes" placeholder="備註" value="${notes}"></td>
+            <td style="text-align: center;"><button type="button" class="btn-del" onclick="removeSpellPair(this)">-</button></td>
+        `;
+
+        const descRow = document.createElement('tr');
+        descRow.className = 'spell-desc-row';
+        descRow.innerHTML = `
+            <td colspan="12">
+                <textarea class="spell-desc-textarea" placeholder="在此輸入法術效果的詳細描述...">${desc}</textarea>
+            </td>
+        `;
+
+        tbody.appendChild(dataRow);
+        tbody.appendChild(descRow);
+    }
+
+    function removeSpellPair(btn) {
+        const dataRow = btn.closest('tr');
+        const descRow = dataRow.nextElementSibling;
+        if(dataRow) dataRow.remove();
+        if(descRow && descRow.classList.contains('spell-desc-row')) descRow.remove();
+    }
+
+    // 動態新增裝備列
+    function addInventoryRow(data = {}) {
+        const tbody = document.getElementById('inventory-tbody');
+        const row = document.createElement('tr');
+        
+        const name = data.name || '';
+        const pos = data.pos || '隨身';
+        const qty = data.qty !== undefined ? data.qty : '1';
+        const weight = data.weight || '';
+        const effect = data.effect || '';
+        const notes = data.notes || '';
+
+        const positions = ['護甲', '藥水', '戒指', '權杖', '捲軸', '法杖', '魔杖', '武器', '奇物', '靴子', '腰帶', '斗篷', '護符', '徽章', '頭飾', '背包', '次元袋', '倉庫', '隨身'];
+
+        let optionsHtml = positions.map(p => `<option value="${p}" ${pos === p ? 'selected' : ''}>${p}</option>`).join('');
+
+        row.innerHTML = `
+            <td><input type="text" class="inv-name" placeholder="物品" value="${name}"></td>
+            <td><select class="inv-pos">${optionsHtml}</select></td>
+            <td><input type="text" class="inv-qty" value="${qty}"></td>
+            <td><input type="text" class="inv-weight" placeholder="重量" value="${weight}"></td>
+            <td><input type="text" class="inv-effect" placeholder="功效" value="${effect}"></td>
+            <td><input type="text" class="inv-notes" placeholder="備註" value="${notes}"></td>
+            <td style="text-align: center;"><button type="button" class="btn-del" onclick="removeRow(this)">-</button></td>
+        `;
+        tbody.appendChild(row);
+    }
+
+    function removeRow(btn) {
+        const row = btn.closest('tr');
+        if(row) row.remove();
+    }
+
+    // 立繪圖片處理
+    function handlePortraitUpload(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            setPortraitSrc(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function setPortraitSrc(src) {
+        const img = document.getElementById('portrait-img');
+        const placeholder = document.getElementById('portrait-placeholder');
+        const clearBtn = document.getElementById('portrait-clear');
+        if(src) {
+            img.src = src;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            clearBtn.style.display = 'flex';
+        } else {
+            img.src = '';
+            img.style.display = 'none';
+            placeholder.style.display = 'block';
+            clearBtn.style.display = 'none';
+        }
+    }
+
+    function clearPortrait() {
+        setPortraitSrc('');
+        document.getElementById('portrait-input').value = '';
+    }
+
+    // --- 匯出 JSON 功能 ---
+    function exportJSON() {
+        const data = {
+            header: {
+                name: document.getElementById('char-name').value,
+                class: document.getElementById('char-class').value,
+                background: document.getElementById('char-background').value,
+                player: document.getElementById('char-player').value,
+                race: document.getElementById('char-race').value,
+                alignment: document.getElementById('char-alignment').value,
+                exp: document.getElementById('char-exp').value
+            },
+            attributes: {},
+            combat: {
+                ac: document.getElementById('stat-ac').value,
+                init: document.getElementById('stat-init').value,
+                speed: document.getElementById('stat-speed').value,
+                prof: document.getElementById('prof-bonus').value,
+                hpMax: document.getElementById('hp-max').value,
+                hpCurrent: document.getElementById('hp-current').value,
+                hpTemp: document.getElementById('hp-temp').value,
+                deathSuccesses: Array.from(document.querySelectorAll('.ds-success')).map(cb => cb.checked),
+                deathFailures: Array.from(document.querySelectorAll('.ds-fail')).map(cb => cb.checked),
+                notes: document.getElementById('combat-notes').value,
+                attacks: document.getElementById('attacks-notes').value
+            },
+            resources: [],
+            skills: {},
+            textAreas: {
+                proficiencies: document.getElementById('proficiencies-notes').value,
+                racial: document.getElementById('racial-notes').value,
+                class: document.getElementById('class-notes').value,
+                appearance: document.getElementById('appearance-notes').value,
+                personality: document.getElementById('personality-notes').value,
+                ideals: document.getElementById('ideals-notes').value,
+                flaws: document.getElementById('flaws-notes').value,
+                backstory: document.getElementById('backstory-notes').value
+            },
+            spellsPage: {
+                ability: document.getElementById('spell-ability').value,
+                dc: document.getElementById('spell-dc').value,
+                dcCustom: document.getElementById('spell-dc').dataset.custom === 'true',
+                atk: document.getElementById('spell-atk').value,
+                atkCustom: document.getElementById('spell-atk').dataset.custom === 'true',
+                slots: Array.from(document.querySelectorAll('#spell-slots-table input')).map(i => i.value),
+                spellsList: []
+            },
+            inventory: [],
+            portrait: document.getElementById('portrait-img').src || ''
+        };
+
+        // 收集屬性
+        document.querySelectorAll('.attr-box').forEach(box => {
+            const attrKey = box.dataset.attr;
+            data.attributes[attrKey] = {
+                val: box.querySelector('.attr-val').value,
+                saveChecked: box.querySelector('.save-check').checked
+            };
+        });
+
+        // 收集特殊資源
+        document.querySelectorAll('#resources-grid .resource-card').forEach(card => {
+            data.resources.push({
+                name: card.querySelector('.res-name').value,
+                val: card.querySelector('.res-val').value
+            });
+        });
+
+        // 收集技能設定
+        document.querySelectorAll('.skill-row').forEach(row => {
+            const skillKey = row.dataset.skill;
+            const selectVal = row.querySelector('.skill-select').value;
+            const totalVal = row.querySelector('.skill-total-val').value;
+            const isCustom = row.querySelector('.skill-total-val').dataset.custom === 'true';
+            data.skills[skillKey] = {
+                profLevel: selectVal,
+                total: totalVal,
+                custom: isCustom
+            };
+        });
+
+        // 收集法術列表
+        const spellDataRows = document.querySelectorAll('#spell-tbody .spell-data-row');
+        spellDataRows.forEach(dataRow => {
+            const descRow = dataRow.nextElementSibling;
+            data.spellsPage.spellsList.push({
+                level: dataRow.querySelector('.spell-level-select').value,
+                name: dataRow.querySelector('.spell-name').value,
+                action: dataRow.querySelector('.spell-action').value,
+                range: dataRow.querySelector('.spell-range').value,
+                duration: dataRow.querySelector('.spell-duration').value,
+                material: dataRow.querySelector('.spell-material').value,
+                v: dataRow.querySelector('.spell-v').checked,
+                s: dataRow.querySelector('.spell-s').checked,
+                c: dataRow.querySelector('.spell-c').checked,
+                r: dataRow.querySelector('.spell-r').checked,
+                notes: dataRow.querySelector('.spell-notes').value,
+                desc: descRow ? descRow.querySelector('.spell-desc-textarea').value : ''
+            });
+        });
+
+        // 收集裝備列表
+        document.querySelectorAll('#inventory-tbody tr').forEach(row => {
+            data.inventory.push({
+                name: row.querySelector('.inv-name').value,
+                pos: row.querySelector('.inv-pos').value,
+                qty: row.querySelector('.inv-qty').value,
+                weight: row.querySelector('.inv-weight').value,
+                effect: row.querySelector('.inv-effect').value,
+                notes: row.querySelector('.inv-notes').value
+            });
+        });
+
+        // 下載 JSON 檔
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const fileName = (data.header.name.trim() || '角色卡') + '_資料.json';
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // --- 讀取 JSON 功能 ---
+    function importJSON(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                loadDataFromObject(data);
+                alert("角色卡資料載入成功！");
+            } catch(err) {
+                alert("解析 JSON 檔案失敗，請確定檔案格式正確。");
+                console.error(err);
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; // 清除輸入框
+    }
+
+    function loadDataFromObject(data) {
+        if(!data) return;
+
+        // 載入基本資料
+        if(data.header) {
+            document.getElementById('char-name').value = data.header.name || '';
+            document.getElementById('char-class').value = data.header.class || '';
+            document.getElementById('char-background').value = data.header.background || '';
+            document.getElementById('char-player').value = data.header.player || '';
+            document.getElementById('char-race').value = data.header.race || '';
+            document.getElementById('char-alignment').value = data.header.alignment || '';
+            document.getElementById('char-exp').value = data.header.exp || '';
+        }
+
+        // 載入屬性
+        if(data.attributes) {
+            Object.keys(data.attributes).forEach(attrKey => {
+                const box = document.querySelector(`.attr-box[data-attr="${attrKey}"]`);
+                if(box) {
+                    box.querySelector('.attr-val').value = data.attributes[attrKey].val || '10';
+                    box.querySelector('.save-check').checked = !!data.attributes[attrKey].saveChecked;
+                }
+            });
+        }
+
+        // 載入戰鬥數值
+        if(data.combat) {
+            document.getElementById('stat-ac').value = data.combat.ac || '';
+            document.getElementById('stat-init').value = data.combat.init || '';
+            document.getElementById('stat-speed').value = data.combat.speed || '';
+            document.getElementById('prof-bonus').value = data.combat.prof || '+2';
+            document.getElementById('hp-max').value = data.combat.hpMax || '';
+            document.getElementById('hp-current').value = data.combat.hpCurrent || '';
+            document.getElementById('hp-temp').value = data.combat.hpTemp || '0';
+            document.getElementById('combat-notes').value = data.combat.notes || '';
+            document.getElementById('attacks-notes').value = data.combat.attacks || '';
+
+            if(data.combat.deathSuccesses) {
+                document.querySelectorAll('.ds-success').forEach((cb, i) => {
+                    cb.checked = !!data.combat.deathSuccesses[i];
+                });
+            }
+            if(data.combat.deathFailures) {
+                document.querySelectorAll('.ds-fail').forEach((cb, i) => {
+                    cb.checked = !!data.combat.deathFailures[i];
+                });
+            }
+        }
+
+        // 載入特殊資源
+        if(data.resources && Array.isArray(data.resources)) {
+            const cards = document.querySelectorAll('#resources-grid .resource-card');
+            data.resources.forEach((res, i) => {
+                if(cards[i]) {
+                    cards[i].querySelector('.res-name').value = res.name || '';
+                    cards[i].querySelector('.res-val').value = res.val || '';
+                }
+            });
+        }
+
+        // 載入文本框
+        if(data.textAreas) {
+            document.getElementById('proficiencies-notes').value = data.textAreas.proficiencies || '';
+            document.getElementById('racial-notes').value = data.textAreas.racial || '';
+            document.getElementById('class-notes').value = data.textAreas.class || '';
+            document.getElementById('appearance-notes').value = data.textAreas.appearance || '';
+            document.getElementById('personality-notes').value = data.textAreas.personality || '';
+            document.getElementById('ideals-notes').value = data.textAreas.ideals || '';
+            document.getElementById('flaws-notes').value = data.textAreas.flaws || '';
+            document.getElementById('backstory-notes').value = data.textAreas.backstory || '';
+        }
+
+        // 載入技能
+        if(data.skills) {
+            Object.keys(data.skills).forEach(skillKey => {
+                const row = document.querySelector(`.skill-row[data-skill="${skillKey}"]`);
+                if(row) {
+                    row.querySelector('.skill-select').value = data.skills[skillKey].profLevel;
+                    const totalInput = row.querySelector('.skill-total-val');
+                    totalInput.value = data.skills[skillKey].total;
+                    if(data.skills[skillKey].custom) {
+                        totalInput.dataset.custom = 'true';
+                    } else {
+                        delete totalInput.dataset.custom;
+                    }
+                }
+            });
+        }
+
+        // 載入法術頁面
+        if(data.spellsPage) {
+            document.getElementById('spell-ability').value = data.spellsPage.ability || 'cha';
+            const dcInput = document.getElementById('spell-dc');
+            dcInput.value = data.spellsPage.dc || '';
+            if(data.spellsPage.dcCustom) dcInput.dataset.custom = 'true';
+
+            const atkInput = document.getElementById('spell-atk');
+            atkInput.value = data.spellsPage.atk || '';
+            if(data.spellsPage.atkCustom) atkInput.dataset.custom = 'true';
+
+            if(data.spellsPage.slots && Array.isArray(data.spellsPage.slots)) {
+                const inputs = document.querySelectorAll('#spell-slots-table input');
+                data.spellsPage.slots.forEach((val, i) => {
+                    if(inputs[i]) inputs[i].value = val;
+                });
+            }
+
+            // 清空並重建法術列表
+            document.getElementById('spell-tbody').innerHTML = '';
+            if(data.spellsPage.spellsList && Array.isArray(data.spellsPage.spellsList)) {
+                data.spellsPage.spellsList.forEach(spell => addSpellRow(spell));
+            }
+        }
+
+        // 載入裝備頁面
+        if(data.inventory && Array.isArray(data.inventory)) {
+            document.getElementById('inventory-tbody').innerHTML = '';
+            data.inventory.forEach(item => addInventoryRow(item));
+        }
+
+        // 載入立繪
+        if(data.portrait) {
+            setPortraitSrc(data.portrait);
+        } else {
+            clearPortrait();
+        }
+
+        // 更新屬性與連動計算
+        updateAttributes();
+    }
+
+    // --- 清除重設為空白版本功能 ---
+    function resetCharacterSheet() {
+        if(!confirm("確定要清除所有填寫的內容並重設為空白嗎？")) return;
+
+        // 清空所有文字輸入框與數字輸入框
+        document.querySelectorAll('input:not([type="file"]):not([type="checkbox"])').forEach(input => {
+            if (input.classList.contains('attr-val')) {
+                input.value = "10";
+            } else if (input.classList.contains('stat-card') || input.id === 'stat-ac') {
+                input.value = "10";
+            } else if (input.id === 'prof-bonus') {
+                input.value = "+2";
+            } else {
+                input.value = "";
+            }
+        });
+
+        // 針對特定戰鬥預設數值歸零
+        document.getElementById('stat-ac').value = "10";
+        document.getElementById('stat-init').value = "+0";
+        document.getElementById('stat-speed').value = "30ft";
+        document.getElementById('hp-max').value = "0";
+        document.getElementById('hp-current').value = "0";
+        document.getElementById('hp-temp').value = "0";
+        document.getElementById('spell-dc').value = "10";
+        document.getElementById('spell-atk').value = "+2";
+
+        // 取消所有勾選框（包括豁免、死亡豁免、法術 V/S/C/R 等）
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+
+        // 清空所有文字區域 (Textarea)
+        document.querySelectorAll('textarea').forEach(ta => {
+            ta.value = "";
+        });
+
+        // 將所有技能熟練下拉選單重設為「無熟練」 (0)
+        document.querySelectorAll('.skill-select').forEach(sel => {
+            sel.value = "0";
+        });
+
+        // 清空法術與裝備列表表格
+        document.getElementById('spell-tbody').innerHTML = "";
+        document.getElementById('inventory-tbody').innerHTML = "";
+
+        // 清除立繪
+        clearPortrait();
+
+        // 法術位管理欄位歸零
+        document.querySelectorAll('#spell-slots-table input').forEach(input => {
+            input.value = "0/0";
+        });
+
+        // 重新計算屬性及各項連動加值
+        updateAttributes();
+
+        alert("角色卡已成功重設為空白預設版本！");
+    }
+
+    // 輸出 PDF 預覽
+    function exportPDF() {
+        window.print();
+    }
+
+    // 頁面初始化：預設載入空白乾淨介面
+    window.addEventListener('DOMContentLoaded', () => {
+        updateAttributes();
+    });
+</script>
+
+</body>
+</html>
